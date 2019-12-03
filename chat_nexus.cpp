@@ -1,29 +1,49 @@
 #include <iostream>
+#include <array>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/ip.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 
 int Socket(int domain, int type, int protocol);
 
 sockaddr_in make_ip_address(const std::string& ip_address, int port);
 
+
+struct Message
+{
+    std::array<char, 1024> text;
+};
+
+
 int main () 
 {
 
-    int fd = Socket(AF_INET,SOCK_DGRAM,0);
+    int fd1 = Socket(AF_INET,SOCK_DGRAM,0);
 
-    sockaddr_in local_address = make_ip_address("",htons(0));
+    int fd2 = Socket(AF_INET,SOCK_DGRAM,0);
 
-    int result = bind(fd, reinterpret_cast<const sockaddr*> (&local_address),
-                      sizeof(local_address));
-    if (result < 0) {
+    sockaddr_in local_address1 = make_ip_address("0.0.0.1",htons(0));
+    sockaddr_in local_address2 = make_ip_address("0.0.0.2",htons(1));
+
+    int result1 = bind(fd1, reinterpret_cast<const sockaddr*> (&local_address1),
+                      sizeof(local_address1));
+    
+    int result2 = bind(fd1, reinterpret_cast<const sockaddr*> (&local_address2),
+                      sizeof(local_address2);
+    
+    if (result1 < 0 || result2 < 0) {
         std::cerr << "falló bind " << '\n';
         return 5;
     }
+
+    std::string message_text("Hola Mundo!");
+    Message message;
+
 }
 
 int Socket(int domain, int type, int protocol)
