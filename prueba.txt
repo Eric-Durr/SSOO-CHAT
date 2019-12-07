@@ -1,9 +1,0 @@
-this is a test file
-
-should be sended without errors
-
---------------------------------------------------------------------------------
-by:             Eric Dürr Sierra
-student from:   E.S.I.T. (Escuela Técina de Ingeniería y Tecnología) 
-                in U.L.L. (Universidad de La Laguna)
-at:             December 2019
