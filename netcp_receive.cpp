@@ -2,21 +2,28 @@
 // show it's content through the screen.
 
 #include<iostream>
+#include<stdio.h>
+
 #include<sys/types.h>
 #include<sys/stat.h>
 #include<sys/fcntl.h>
-#include "socket.h"
+#include "socket.cpp"
 
 sockaddr_in make_ip_address(const std::string& ip_address, int port);
 
 
 int main (void){
     Message msg_to_receive;
-    sockaddr_in senderIp = make_ip_address ("0.0.0.1", 1 );
-    sockaddr_in receiverIp = make_ip_address ("0.0.0.2", 2 );
+    struct sockaddr_in senderIp = make_ip_address ("", 0 );
+    struct sockaddr_in receiverIp = make_ip_address ("127.0.0.1", 8888 );
     Socket receiverSocket(receiverIp);
     
-    receiverSocket.receive_from(msg_to_receive, senderIp);
+    for(;;) {
+
+        receiverSocket.receive_from(msg_to_receive, senderIp);
+        std::cout << msg_to_receive.text.data() << '\n';
+        std::cout << "." << '\n';
+    } 
 
     return 0;
 }
