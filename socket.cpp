@@ -43,6 +43,6 @@ void Socket::receive_from(Message& message, sockaddr_in& address) {
                &src_len);
   if (result < 0) {
   std::cerr << "falló recvfrom: "  << '\n';
-  assert(1);
+    assert(1);
   }
 }
