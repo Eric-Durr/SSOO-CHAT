@@ -43,7 +43,15 @@ int main ()
 
     std::string message_text("Hola Mundo!");
     Message message;
-
+    message_text.copy(message.text.data(), message.text.size()-1, 0);
+    int result = sendto(fd1, &message, sizeof(message), 0,
+                     reinterpret_cast<const sockaddr*> (&local_address1),
+                     sizeof(local_address1));
+    if (result < 0 ) {
+        std::cerr << "falló sendto: " << 
+        strerror(errno) << '\n';
+        return 6;
+    }
 }
 
 int Socket(int domain, int type, int protocol)
