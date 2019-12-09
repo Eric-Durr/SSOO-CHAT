@@ -26,8 +26,9 @@ int main (void){
     struct sockaddr_in  client_address;
     int                 addrlen = sizeof(client_address);
     char                buffer[BUFLEN];
-    char                message[BUFLEN]; 
+    struct Message      message;
 
+    
   // dirección:
     memset((char*) &client_address, 0, sizeof(client_address));
     client_address = make_ip_address(SERVER, PORT);
@@ -37,16 +38,15 @@ int main (void){
     }
 
   // socket:
-    Socket<char *> client_socket(client_address);
-  
+    Socket<Message> client_socket(client_address);
+    
   // try-catch loop
     while(1) {
-      std::cout << "escriba su mensaje: ";
-      std::cin >> message;
-
+      std::cout << "Lectura del fichero en el servidor: \n";
       client_socket.send_to(message, client_address);
-      memset(buffer, '\0', BUFLEN);
-
+      client_socket.receive_from(message, client_address);
+      std::cout << "Datos recibidos: \n";
+      std::cout << message.text.data() << std::endl;
     }
 
     return 0;

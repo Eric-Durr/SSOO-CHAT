@@ -20,17 +20,18 @@ int main (int argc, char *argv[]){
 
   // variables:
     struct sockaddr_in  server_address, client_address;
-    int                 addrlen = sizeof(server_address), recv_len;
-    char*                buffer[BUFLEN];
+    int                 addrlen = sizeof(server_address), recv_len, ret;
+    char                buffer[BUFLEN];
     
+    struct Message message;
   //
 
   // File oppening:
-  //  int fileFd = open("./prueba.txt", O_RDONLY);
-  //  if (fileFd < 0) {
-  //      std::cerr << "Falló la apertura del fichero: " << '\n';
-  //      return  1;
-  //  }
+    int fileFd = open("./prueba.txt", O_RDONLY);
+    if (fileFd < 0) {
+        std::cerr << "Falló la apertura del fichero: " << '\n';
+        return  1;
+    }
   //
 
   // Address: 
@@ -39,26 +40,26 @@ int main (int argc, char *argv[]){
   //
 
   // Socket:
-    Socket<char *[BUFLEN]> server_socket(server_address);
+    Socket<Message> server_socket(server_address);
     
   //
 
   while(1){
 
-    std::cout << "waiting for data ... \n";
+    std::cout << "Sending file ... \n";
     fflush(stdout);
-
-    server_socket.receive_from(buffer, client_address);
+    server_socket.receive_from(message, client_address);
+    std::cout << "conected to [" << inet_ntoa(client_address.sin_addr)
+    << ":" << ntohs(client_address.sin_port) << std::endl;
     
-    std::cout << "Received package from: "
-    << inet_ntoa(client_address.sin_addr) << ":" 
-    << ntohs(client_address.sin_port) << std::endl;
-    std::cout << "Data: " << buffer;
+    while((ret = read(fileFd, message.text.data(), message.text.size()-1)) > 0) {
+      message.text.data()[ret] = 0x00;
+      server_socket.send_to(message, client_address); 
+    }
+    
+    
     //printf("Received package from %s:%d \n", inet_ntoa(si_other.sin_addr), ntohs(si_other.sin_port));
     //printf("Data: %s\n", buf);
-
-
-
   }
 
 }
