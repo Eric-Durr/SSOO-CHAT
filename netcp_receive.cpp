@@ -9,22 +9,19 @@
 #include<sys/fcntl.h>
 #include "socket.cpp"
 
+// Constantes:
+
+#define BUFFER  1024
+#define PORT    8080    
+
+// Prototipos:
+
 sockaddr_in make_ip_address(const std::string& ip_address, int port);
 
 
 int main (void){
-    Message msg_to_receive;
-    struct sockaddr_in senderIp = make_ip_address ("", 0 );
-    struct sockaddr_in receiverIp = make_ip_address ("127.0.0.1", 8888 );
-    Socket receiverSocket(receiverIp);
-    
-    for(;;) {
 
-        receiverSocket.receive_from(msg_to_receive, senderIp);
-        std::cout << msg_to_receive.text.data() << '\n';
-        std::cout << "." << '\n';
-    } 
-
+  
     return 0;
 }
 

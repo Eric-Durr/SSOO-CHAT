@@ -1,6 +1,5 @@
 // This program should open "prueba.txt", read it and send it to the receiver socket
-
-
+// librerías:
 
 #include<iostream>
 #include<sys/types.h>
@@ -8,13 +7,16 @@
 #include<sys/fcntl.h>
 #include "socket.cpp"
 
+// Constantes:
+
+#define BUFFER  1024
+#define PORT    8080    
+
+// Prototipos:
+
 sockaddr_in make_ip_address(const std::string& ip_address, int port);
 
 int main (int argc, char *argv[]){
-
-    Message msg_to_send;
-    char buffer[1024];
-
 
     // File oppening:
     int fileFd = open("./prueba.txt", O_RDONLY);
@@ -30,17 +32,7 @@ int main (int argc, char *argv[]){
 
     std::string s("hello world");
 
-    //memset(&senderIp, 0, sizeof(senderIp));
     int ret;
-    //while ((ret = read(fileFd, buffer, sizeof(buffer) - 1)) > 0 ) {
-    //    buffer[ret] = 0x00;
-    //    std::string message_text = buffer;
-    //    message_text.copy(msg_to_send.text.data(), 
-    //                      msg_to_send.text.size() - 1, 0);
-    //}
-    s.copy(msg_to_send.text.data(), msg_to_send.text.size() - 1 , 0);
-    senderSocket.send_to(msg_to_send, receiverIp);
-    //senderSocket.send_to(msg_to_send, receiverIp);
     return 0;
 }
 
