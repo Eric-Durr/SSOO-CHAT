@@ -18,15 +18,15 @@ struct Message
     std::array<char, 1024> text;
 // ...
 };
-
+template<class T>
 class Socket
 {
 public:
     Socket(const sockaddr_in& address);
     ~Socket();
 
-    void send_to(const Message& message, const sockaddr_in& address);
-    void receive_from(Message& message, sockaddr_in& address);
+    void send_to(const T& message, const sockaddr_in& address);
+    void receive_from(T& message, sockaddr_in& address);
     
 private:
     int fd_;
