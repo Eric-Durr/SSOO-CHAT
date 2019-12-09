@@ -39,14 +39,15 @@ int main (void){
 
   // socket:
     Socket<Message> client_socket(client_address);
-    
+    message.text.at(0) = '.';
   // try-catch loop
-    while(1) {
+    while(1 && message.text.at(0) == '.') {
       std::cout << "Lectura del fichero en el servidor: \n";
       client_socket.send_to(message, client_address);
       client_socket.receive_from(message, client_address);
-      std::cout << "Datos recibidos: \n";
-      std::cout << message.text.data() << std::endl;
+      std::cout << "Datos recibidos: \n\n\n";
+      std::cout << message.text.data();
+      std::cout << "\n\n\n";
     }
 
     return 0;
