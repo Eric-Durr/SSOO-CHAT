@@ -41,6 +41,8 @@ int main()
         return 2;
     }
 
+    std::cout << si_other.sin_port << std::endl;
+    std::cout << si_other.sin_addr.s_addr << std::endl;
     // Concetion loop (eternal)
     while(1) { 
 

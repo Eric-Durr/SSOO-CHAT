@@ -44,6 +44,10 @@ int main()
     
     // calling loop
 
+    std::cout << si_me.sin_port << std::endl;
+    std::cout << si_me.sin_addr.s_addr << std::endl;
+    
+    std::cout << si_other.sin_port << std::endl;
     while(1){
     
         std::cout << "waiting for data ... \n";
