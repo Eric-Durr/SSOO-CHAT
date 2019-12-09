@@ -41,9 +41,6 @@ int main (int argc, char *argv[]){
   // Socket:
     Socket<char *[BUFLEN]> server_socket(server_address);
     
-    std::cout << server_address.sin_port << std::endl;
-
-    std::cout << server_address.sin_addr.s_addr << std::endl;
   //
 
   while(1){
@@ -70,7 +67,7 @@ int main (int argc, char *argv[]){
 
 sockaddr_in make_ip_address(const std::string& ip_address, int port)
 {
-  sockaddr_in address{};
+  sockaddr_in address;
 
   address.sin_family = AF_INET;  
   

@@ -37,16 +37,14 @@ int main (void){
     }
 
   // socket:
-    Socket<char *> server_socket(client_address);
-    std::cout << client_address.sin_port << std::endl;
-    std::cout << client_address.sin_addr.s_addr << std::endl;
+    Socket<char *> client_socket(client_address);
   
   // try-catch loop
     while(1) {
       std::cout << "escriba su mensaje: ";
       std::cin >> message;
 
-      server_socket.send_to(message, client_address);
+      client_socket.send_to(message, client_address);
       memset(buffer, '\0', BUFLEN);
 
     }
@@ -59,7 +57,7 @@ int main (void){
 
 sockaddr_in make_ip_address(const std::string& ip_address, int port)
 {
-  sockaddr_in local_address{};
+  sockaddr_in local_address;
 
   local_address.sin_family = AF_INET;  
   local_address.sin_port = htons(port);  
