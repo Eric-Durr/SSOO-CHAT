@@ -1,0 +1,18 @@
+// Es posible terminar con: terminate called withot active exception -> aborted
+// Para solucionarlo debemos cancelar el hilo (en comunicación)
+// |
+//  -> Cancelación coordinada POSIX threads (solo compilers en gcc) (no estandar)
+
+
+// Usaremos:    la api de pthreads
+//              variable atomic global -> se proteje de accesos concurrentes 
+//                                      (los demas deben esperar)
+
+// Implementaremos: request_cancelation
+
+
+// ·
+// ·
+// ·
+
+// al implementar multiarchivos un hilo: lee el archivo y otro:
