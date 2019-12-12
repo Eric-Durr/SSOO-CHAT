@@ -48,20 +48,18 @@ int main (int argc, char *argv[]){
       struct Message message;
 
       std::cout << "Sending file ... \n";
-      fflush(stdout);
+      
       server_socket.receive_from(message, client_address);
+      
       std::cout << "conected to [" << inet_ntoa(client_address.sin_addr)
       << ":" << ntohs(client_address.sin_port) << "]" <<std::endl;
-
+      
       while((ret = read(fileFd, message.text.data(), message.text.size()-1)) > 0) {
 
         message.text.data()[ret] = 0x00;
         server_socket.send_to(message, client_address); 
       }
 
-
-      //printf("Received package from %s:%d \n", inet_ntoa(si_other.sin_addr), ntohs(si_other.sin_port));
-      //printf("Data: %s\n", buf);
     }
   } else {
     std::cout << "falta el nombre del fichero a enviar " << std::endl;
