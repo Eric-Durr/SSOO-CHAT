@@ -1,7 +1,10 @@
+#pragma once
+
 #include <iostream>
 #include <cassert>
 #include <array>
-#include <errno.h>
+#include <cerrno>
+#include <cstring>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
