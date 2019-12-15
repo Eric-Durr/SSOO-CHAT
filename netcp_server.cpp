@@ -61,6 +61,11 @@ int main (int argc, char *argv[]){
       }
 
     }
+    if ( int is_closed = close(fileFd) < 0) {
+  
+          std::cerr << "Falló el cierre del fichero: " << '\n';
+          return  2;    
+    }
   } else {
     std::cout << "falta el nombre del fichero a enviar " << std::endl;
   
