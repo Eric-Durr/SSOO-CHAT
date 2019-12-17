@@ -21,6 +21,7 @@ struct Message
     std::array<char, 1024> text;
 // ...
 };
+
 template<class T>
 class Socket
 {
