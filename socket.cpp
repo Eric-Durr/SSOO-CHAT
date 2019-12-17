@@ -6,11 +6,11 @@ Socket<T>::Socket(const sockaddr_in& address)
 {
   
   if (fd_ = socket(AF_INET, SOCK_DGRAM, 0) < 0) {
-    throw std::system_error(errno, std::systemg_category(),
+    throw std::system_error(errno, std::system_category(),
                             "no se pudo crear el socket.");
   }
   if (int r = bind(fd_, (struct sockaddr*) &address, sizeof(address)) < 0) {
-    throw std::system_error(errno, std::systemg_category(),
+    throw std::system_error(errno, std::system_category(),
                             "no se pudo hacer bind.");
   }
 
@@ -29,7 +29,7 @@ void Socket<T>::send_to(const T& message, const sockaddr_in& address)
                reinterpret_cast<const sockaddr*> (&address),
                sizeof(address));
   if (result < 0) {  
-    throw std::system_error(errno, std::systemg_category(),
+    throw std::system_error(errno, std::system_category(),
                             "no se pudo ejecutar sendto().");
   
   }
@@ -42,7 +42,7 @@ void Socket<T>::receive_from(T& message, sockaddr_in& address) {
                (struct sockaddr*) &address, 
                &src_len);
   if (result < 0) {  
-    throw std::system_error(errno, std::systemg_category(),
+    throw std::system_error(errno, std::system_category(),
                             "no se pudo ejecutar recvfrom().");
   
   }

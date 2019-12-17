@@ -20,8 +20,7 @@
 sockaddr_in make_ip_address(const std::string& ip_address, int port);
 
 // Main program:
-
-int main (void){
+int protected_main (int argc, char *argv[]){
   // variables:
     struct sockaddr_in  client_address;
     int                 addrlen = sizeof(client_address);
@@ -33,8 +32,8 @@ int main (void){
     memset((char*) &client_address, 0, sizeof(client_address));
     client_address = make_ip_address(SERVER, PORT);
     if (client_address.sin_addr.s_addr == 0) {
-      printf("Error en la creación de la dirección del socket");
-      return 1;
+      throw std::system_error(errno, std::system_category(),
+            "no se pudo crear una dirección para el socket");
     }
 
   // socket:
@@ -51,6 +50,32 @@ int main (void){
     }
 
     return 0;
+}
+
+
+int main (int argc, char *argv[])
+{
+  try
+  {
+    return protected_main(argc, argv);
+  }
+  catch(const std::bad_alloc& e)
+  {
+    std::cerr << "mitalk :" << "memoria insuficiente\n";
+    return 1;
+  }
+  catch(const std::system_error& e)
+  {
+    std::cerr << "mitalk :" << e.what << "\n";
+    return 2;
+  }
+
+  catch(...)
+  {
+    std::cout << "Error desconocido\n";
+    return 99;
+  }
+  
 }
 
 

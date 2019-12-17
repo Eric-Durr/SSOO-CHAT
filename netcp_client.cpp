@@ -16,8 +16,8 @@
 
 sockaddr_in make_ip_address(const std::string& ip_address, int port);
 
-int main (int argc, char *argv[]){
-
+int protected_main (int argc, char *argv[])
+{  
   if ( argc == 2) {
     // variables:
       struct sockaddr_in  server_address, client_address;
@@ -27,16 +27,22 @@ int main (int argc, char *argv[]){
     //
 
     // File oppening:
-      int fileFd = open(argv[1], O_RDONLY);
-      if (fileFd < 0) {
-          std::cerr << "Falló la apertura del fichero: " << '\n';
-          return  1;
+      int fileFd;
+      if (fileFd = open(argv[1], O_RDONLY) < 0) {
+        throw std::system_error(errno, std::system_category(),
+                            "no se pudo abrir el fichero.");
+  
       }
     //
 
     // Address: 
       memset((char *) &server_address, 0, sizeof(server_address));
       server_address = make_ip_address("", PORT);
+      if (server_address.sin_addr.s_addr == 0) {
+        throw std::system_error(errno, std::system_category(),
+            "no se pudo crear una dirección para el socket");
+      }
+
     //
 
     // Socket:
@@ -62,14 +68,41 @@ int main (int argc, char *argv[]){
 
     }
     if ( int is_closed = close(fileFd) < 0) {
+      throw std::system_error(errno, std::system_category(),
+                            "no se pudo cerrar el fichero.");
   
-          std::cerr << "Falló el cierre del fichero: " << '\n';
-          return  2;    
     }
   } else {
     std::cout << "falta el nombre del fichero a enviar " << std::endl;
   
   }
+
+  return 0;
+}
+
+int main (int argc, char *argv[])
+{
+  try
+  {
+    return protected_main(argc, argv);
+  }
+  catch(const std::bad_alloc& e)
+  {
+    std::cerr << "mitalk :" << "memoria insuficiente\n";
+    return 1;
+  }
+  catch(const std::system_error& e)
+  {
+    std::cerr << "mitalk :" << e.what << "\n";
+    return 2;
+  }
+
+  catch(...)
+  {
+    std::cout << "Error desconocido\n";
+    return 99;
+  }
+  
 }
 
 
