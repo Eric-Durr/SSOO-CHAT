@@ -19,8 +19,8 @@
 
 sockaddr_in make_ip_address(const std::string& ip_address, int port);
 
-void read_send(std::exception_ptr& eptr, int fileFD, Socket<Message> &local_socket, sockaddr_in &ext_addr);
-
+void read_send(std::exception_ptr& eptr, char* &fileFD, Socket<Message> &local_socket, sockaddr_in &ext_addr);
+void receive_msg(std::exception_ptr& eptr, Socket<Message> &local_socket, sockaddr_in &ext_addr);
 int protected_main (int argc, char *argv[])
 {  
   if ( argc == 2) {
@@ -32,12 +32,7 @@ int protected_main (int argc, char *argv[])
     //
 
     // File oppening:
-      int fileFd = open(argv[1], O_RDONLY);
-      if (fileFd  < 0) {
-        throw std::system_error(errno, std::system_category(),
-                            "no se pudo abrir el fichero.");
-  
-      }
+
       
     //
 
@@ -62,12 +57,10 @@ int protected_main (int argc, char *argv[])
     
   // leer y enviar el archivo
     std::exception_ptr eptr{};
-    std::thread sendingThread(&read_send, std::ref(eptr),fileFd, std::ref(local_socket), std::ref(external_address));
-    if ( int is_closed = close(fileFd) < 0) {
-      throw std::system_error(errno, std::system_category(),
-                            "no se pudo cerrar el fichero.");
-  
-    }
+    
+    std::thread sendingThread(&read_send, std::ref(eptr),std::ref(argv[1]), std::ref(local_socket), std::ref(external_address));
+    
+    
     
     sendingThread.join();
     if (eptr) {
@@ -135,24 +128,36 @@ sockaddr_in make_ip_address(const std::string& ip_address, int port)
 }
 
 
-void read_send(std::exception_ptr& eptr, int fileFD, Socket<Message> &local_socket, sockaddr_in &ext_addr) {
-    int ret;
+void read_send(std::exception_ptr& eptr, char* &filename, Socket<Message> &local_socket, sockaddr_in &ext_addr)
+{
+    int ret ;
     struct Message message ;
 
     try {
-    
-        std::cout << "Sending file ... \n";
+      int fileFd = open(filename, O_RDONLY);
+      if (fileFd  < 0) {
+        throw std::system_error(errno, std::system_category(),
+                            "no se pudo abrir el fichero.");
+  
+      }
 
 
-        while((ret = read(fileFD, message.text.data(), message.text.size()-1)) > 0 ) {
-        
+        while((ret = read(fileFd, message.text.data(), message.text.size()-1)) > 0 ) {
           message.text.data()[ret] = 0x00;
-
           local_socket.send_to(message, ext_addr);
-
         }
+
+    if ( int is_closed = close(fileFd) < 0) {
+      throw std::system_error(errno, std::system_category(),
+                            "no se pudo cerrar el fichero.");
+  
+    }
 
     } catch(...) {
         eptr = std::current_exception();
     }
+}
+void receive_msg(std::exception_ptr& eptr, Socket<Message> &local_socket, sockaddr_in &ext_addr) 
+{
+
 }

@@ -18,6 +18,7 @@
 // Prototipos:
 
 sockaddr_in make_ip_address(const std::string& ip_address, int port);
+void receive_msg(std::exception_ptr& eptr, Socket<Message> &local_socket, sockaddr_in &ext_addr);
 
 int protected_main (int argc, char *argv[])
 {  

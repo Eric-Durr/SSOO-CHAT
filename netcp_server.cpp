@@ -3,7 +3,7 @@
 
 #include<iostream>
 #include<stdio.h>
-
+#include<thread>
 #include<sys/types.h>
 #include<sys/stat.h>
 #include<sys/fcntl.h>
@@ -19,6 +19,7 @@
 // Prototipos:
 
 sockaddr_in make_ip_address(const std::string& ip_address, int port);
+void receive_msg(std::exception_ptr& eptr, Socket<Message> &local_socket, sockaddr_in &ext_addr);
 
 // Main program:
 
@@ -27,8 +28,6 @@ int protected_main (int argc, char *argv[]){
     struct sockaddr_in  local_address,external_address;
     int                 addrlen = sizeof(local_address);
     char                buffer[BUFLEN];
-    struct Message      message;
-
     
   // dirección:
     memset((char*) &local_address, 0, sizeof(local_address));
@@ -46,17 +45,12 @@ int protected_main (int argc, char *argv[]){
     }
   // socket:
     Socket<Message> local_socket(local_address);
-    message.text.at(0) = '.';
+    
   // try-catch loop
-    while(1 ) {
-      std::cout << "Lectura del fichero en el servidor: \n";
+    std::exception_ptr eptr{};
+    std::thread receiveThread(&receive_msg, std::ref(eptr), std::ref(local_socket), std::ref(external_address));
 
-      local_socket.receive_from(message, external_address);
-      std::cout << "Datos recibidos: \n\n\n";
-      std::cout << message.text.data();
-      std::cout << "\n\n\n";
-    }
-
+    receiveThread.join();
     return 0;
 }
 
@@ -106,4 +100,23 @@ sockaddr_in make_ip_address(const std::string& ip_address, int port)
   }
   
   return local_address;
+}
+
+void receive_msg(std::exception_ptr& eptr, Socket<Message> &local_socket, sockaddr_in &ext_addr) {
+  try {
+
+    struct Message message;
+
+    
+    while(1) {
+      std::cout << "Lectura del fichero en el servidor: \n";
+      local_socket.receive_from(message, ext_addr);
+      std::cout << "Datos recibidos: \n\n\n";
+      std::cout << message.text.data();
+      std::cout << "\n\n\n";
+    }
+
+  }  catch(...) {
+        eptr = std::current_exception();
+  }
 }
