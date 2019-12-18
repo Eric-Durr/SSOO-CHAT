@@ -11,16 +11,20 @@
 // Constantes:
 
 #define BUFLEN  1024
-#define ADDR    "127.0.0.1"
+#define ADDR1    "127.0.0.1"
+
+#define ADDR2    "127.0.0.2"
 #define LPORT   8880
 #define EPORT   8881    
 
 // Prototipos:
 
 sockaddr_in make_ip_address(const std::string& ip_address, int port);
-
 void read_send(std::exception_ptr& eptr, char* &fileFD, Socket<Message> &local_socket, sockaddr_in &ext_addr);
 void receive_msg(std::exception_ptr& eptr, Socket<Message> &local_socket, sockaddr_in &ext_addr);
+
+
+
 int protected_main (int argc, char *argv[])
 {  
   if ( argc == 2) {
@@ -39,13 +43,13 @@ int protected_main (int argc, char *argv[])
 
   // dirección:
     memset((char*) &local_address, 0, sizeof(local_address));
-    local_address = make_ip_address(ADDR, LPORT);
+    local_address = make_ip_address(ADDR1, LPORT);
     if (local_address.sin_addr.s_addr == 0) {
       throw std::system_error(errno, std::system_category(),
                             "no se pudo crear la dirección local.");
     }
     memset((char*) &external_address, 0, sizeof(external_address));
-    external_address = make_ip_address(ADDR, EPORT);
+    external_address = make_ip_address(ADDR2, EPORT);
     if (external_address.sin_addr.s_addr == 0) {
   
       throw std::system_error(errno, std::system_category(),
@@ -54,14 +58,16 @@ int protected_main (int argc, char *argv[])
 
   // socket:
     Socket<Message> local_socket(local_address);
+    Socket<Message> external_socket(external_address);
     
   // leer y enviar el archivo
     std::exception_ptr eptr{};
     
     std::thread sendingThread(&read_send, std::ref(eptr),std::ref(argv[1]), std::ref(local_socket), std::ref(external_address));
+    std::thread receiveThread(&receive_msg, std::ref(eptr), std::ref(external_socket), std::ref(local_address));
+
     
-    
-    
+    receiveThread.join();
     sendingThread.join();
     if (eptr) {
         std::rethrow_exception(eptr);
@@ -157,7 +163,22 @@ void read_send(std::exception_ptr& eptr, char* &filename, Socket<Message> &local
         eptr = std::current_exception();
     }
 }
-void receive_msg(std::exception_ptr& eptr, Socket<Message> &local_socket, sockaddr_in &ext_addr) 
-{
 
+void receive_msg(std::exception_ptr& eptr, Socket<Message> &local_socket, sockaddr_in &ext_addr) {
+  try {
+
+    struct Message message;
+
+    
+    while(1) {
+      std::cout << "Lectura del fichero en el servidor: \n";
+      local_socket.receive_from(message, ext_addr);
+      std::cout << "Datos recibidos: \n\n\n";
+      std::cout << message.text.data();
+      std::cout << "\n\n\n";
+    }
+
+  }  catch(...) {
+        eptr = std::current_exception();
+  }
 }
