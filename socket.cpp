@@ -4,8 +4,8 @@
 template<class T>
 Socket<T>::Socket(const sockaddr_in& address)
 {
-  
-  if (fd_ = socket(AF_INET, SOCK_DGRAM, 0) < 0) {
+  fd_ = socket(AF_INET, SOCK_DGRAM, 0);
+  if (fd_ < 0) {
     throw std::system_error(errno, std::system_category(),
                             "no se pudo crear el socket.");
   }

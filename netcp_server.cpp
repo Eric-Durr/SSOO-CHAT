@@ -11,7 +11,7 @@
 
 // Constantes:
 
-#define SERVER "127.0.0.1"
+#define SERVER "127.1.1.1"
 #define BUFLEN  1024
 #define PORT    8888    
 
@@ -20,30 +20,31 @@
 sockaddr_in make_ip_address(const std::string& ip_address, int port);
 
 // Main program:
+
 int protected_main (int argc, char *argv[]){
   // variables:
-    struct sockaddr_in  client_address;
-    int                 addrlen = sizeof(client_address);
+    struct sockaddr_in  local_address;
+    int                 addrlen = sizeof(local_address);
     char                buffer[BUFLEN];
     struct Message      message;
 
     
   // dirección:
-    memset((char*) &client_address, 0, sizeof(client_address));
-    client_address = make_ip_address(SERVER, PORT);
-    if (client_address.sin_addr.s_addr == 0) {
-      throw std::system_error(errno, std::system_category(),
-            "no se pudo crear una dirección para el socket");
+    memset((char*) &local_address, 0, sizeof(local_address));
+    local_address = make_ip_address(SERVER, 0);
+    if (local_address.sin_addr.s_addr == 0) {
+      printf("Error en la creación de la dirección del socket");
+      return 1;
     }
 
   // socket:
-    Socket<Message> client_socket(client_address);
+    Socket<Message> local_socket(local_address);
     message.text.at(0) = '.';
   // try-catch loop
     while(1 && message.text.at(0) == '.') {
       std::cout << "Lectura del fichero en el servidor: \n";
-      client_socket.send_to(message, client_address);
-      client_socket.receive_from(message, client_address);
+
+      local_socket.receive_from(message, local_address);
       std::cout << "Datos recibidos: \n\n\n";
       std::cout << message.text.data();
       std::cout << "\n\n\n";
@@ -51,7 +52,6 @@ int protected_main (int argc, char *argv[]){
 
     return 0;
 }
-
 
 int main (int argc, char *argv[])
 {
@@ -66,7 +66,7 @@ int main (int argc, char *argv[])
   }
   catch(const std::system_error& e)
   {
-    std::cerr << "mitalk :" << e.what << "\n";
+    std::cerr << "mitalk :" << e.what() << "\n";
     return 2;
   }
 
