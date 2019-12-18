@@ -2,6 +2,7 @@
 // librerías:
 
 #include<iostream>
+#include<thread>
 #include<sys/types.h>
 #include<sys/stat.h>
 #include<sys/fcntl.h>
@@ -29,8 +30,8 @@ int protected_main (int argc, char *argv[])
     //
 
     // File oppening:
-      int fileFd;
-      if (fileFd = open(argv[1], O_RDONLY) < 0) {
+      int fileFd = open(argv[1], O_RDONLY);
+      if (fileFd  < 0) {
         throw std::system_error(errno, std::system_category(),
                             "no se pudo abrir el fichero.");
   
@@ -43,25 +44,26 @@ int protected_main (int argc, char *argv[])
     memset((char*) &local_address, 0, sizeof(local_address));
     local_address = make_ip_address(ADDR, LPORT);
     if (local_address.sin_addr.s_addr == 0) {
-      printf("Error en la creación de la dirección del socket local");
-      return 1;
+      throw std::system_error(errno, std::system_category(),
+                            "no se pudo crear la dirección local.");
     }
     memset((char*) &external_address, 0, sizeof(external_address));
     external_address = make_ip_address(ADDR, EPORT);
     if (external_address.sin_addr.s_addr == 0) {
-      printf("Error en la creación de la dirección del socket externo");
-      return 1;
+  
+      throw std::system_error(errno, std::system_category(),
+                            "no se pudo crear la dirección externa.");
     }
 
   // socket:
     Socket<Message> local_socket(local_address);
     
-    struct Message message;
+    struct Message message ;
     
     std::cout << "Sending file ... \n";
       
       
-    while((ret = read(fileFd, message.text.data(), message.text.size()-1)) ) {
+    while((ret = read(fileFd, message.text.data(), message.text.size()-1)) > 0 ) {
       
       message.text.data()[ret] = 0x00;
      

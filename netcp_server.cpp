@@ -34,21 +34,21 @@ int protected_main (int argc, char *argv[]){
     memset((char*) &local_address, 0, sizeof(local_address));
     local_address = make_ip_address(ADDR, LPORT);
     if (local_address.sin_addr.s_addr == 0) {
-      printf("Error en la creación de la dirección del socket local");
-      return 1;
+      throw std::system_error(errno, std::system_category(),
+                            "no se pudo crear la dirección local.");
     }
     memset((char*) &external_address, 0, sizeof(external_address));
     external_address = make_ip_address(ADDR, EPORT);
     if (external_address.sin_addr.s_addr == 0) {
-      printf("Error en la creación de la dirección del socket externo");
-      return 1;
+  
+      throw std::system_error(errno, std::system_category(),
+                            "no se pudo crear la dirección externa.");
     }
-
   // socket:
     Socket<Message> local_socket(local_address);
     message.text.at(0) = '.';
   // try-catch loop
-    while(1 && message.text.at(0) == '.') {
+    while(1 ) {
       std::cout << "Lectura del fichero en el servidor: \n";
 
       local_socket.receive_from(message, external_address);
