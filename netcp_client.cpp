@@ -10,7 +10,9 @@
 // Constantes:
 
 #define BUFLEN  1024
-#define PORT    8888    
+#define ADDR    "127.0.0.1"
+#define LPORT   8880
+#define EPORT   8881    
 
 // Prototipos:
 
@@ -20,8 +22,8 @@ int protected_main (int argc, char *argv[])
 {  
   if ( argc == 2) {
     // variables:
-      struct sockaddr_in  server_address, local_address;
-      int                 addrlen = sizeof(server_address), recv_len, ret;
+      struct sockaddr_in  local_address, external_address;
+      int                 addrlen = sizeof(local_address), recv_len, ret;
       char                buffer[BUFLEN];
 
     //
@@ -33,42 +35,39 @@ int protected_main (int argc, char *argv[])
                             "no se pudo abrir el fichero.");
   
       }
-    //
-
-    // Address: 
-      memset((char *) &server_address, 0, sizeof(server_address));
-      server_address = make_ip_address("127.1.1.1", PORT);
-      if (server_address.sin_addr.s_addr < 0) {
-        throw std::system_error(errno, std::system_category(),
-            "no se pudo crear una dirección para el socket");
-      }
-
-      memset((char *) &local_address, 0, sizeof(local_address));
-      local_address = make_ip_address("", 8081);
-      if (local_address.sin_addr.s_addr < 0) {
-        throw std::system_error(errno, std::system_category(),
-            "no se pudo crear una dirección para el socket");
-      }
-
-    //
-
-    // Socket:
-      Socket<Message> local_socket(local_address);
-
-    //
-
-      struct Message message;
-
-      std::cout << "Sending file ... \n";
       
-      
-      while((ret = read(fileFd, message.text.data(), message.text.size()-1)) > 0) {
+    //
 
-        message.text.data()[ret] = 0x00;
-        local_socket.send_to(message, server_address); 
-      }
 
+  // dirección:
+    memset((char*) &local_address, 0, sizeof(local_address));
+    local_address = make_ip_address(ADDR, LPORT);
+    if (local_address.sin_addr.s_addr == 0) {
+      printf("Error en la creación de la dirección del socket local");
+      return 1;
+    }
+    memset((char*) &external_address, 0, sizeof(external_address));
+    external_address = make_ip_address(ADDR, EPORT);
+    if (external_address.sin_addr.s_addr == 0) {
+      printf("Error en la creación de la dirección del socket externo");
+      return 1;
+    }
+
+  // socket:
+    Socket<Message> local_socket(local_address);
     
+    struct Message message;
+    
+    std::cout << "Sending file ... \n";
+      
+      
+    while((ret = read(fileFd, message.text.data(), message.text.size()-1)) ) {
+      
+      message.text.data()[ret] = 0x00;
+     
+      local_socket.send_to(message, external_address);
+      
+    }
     if ( int is_closed = close(fileFd) < 0) {
       throw std::system_error(errno, std::system_category(),
                             "no se pudo cerrar el fichero.");

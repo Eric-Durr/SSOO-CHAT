@@ -11,9 +11,10 @@
 
 // Constantes:
 
-#define SERVER "127.1.1.1"
 #define BUFLEN  1024
-#define PORT    8888    
+#define ADDR    "127.0.0.1"
+#define EPORT   8880
+#define LPORT   8881    
 
 // Prototipos:
 
@@ -23,7 +24,7 @@ sockaddr_in make_ip_address(const std::string& ip_address, int port);
 
 int protected_main (int argc, char *argv[]){
   // variables:
-    struct sockaddr_in  local_address;
+    struct sockaddr_in  local_address,external_address;
     int                 addrlen = sizeof(local_address);
     char                buffer[BUFLEN];
     struct Message      message;
@@ -31,9 +32,15 @@ int protected_main (int argc, char *argv[]){
     
   // dirección:
     memset((char*) &local_address, 0, sizeof(local_address));
-    local_address = make_ip_address(SERVER, 0);
+    local_address = make_ip_address(ADDR, LPORT);
     if (local_address.sin_addr.s_addr == 0) {
-      printf("Error en la creación de la dirección del socket");
+      printf("Error en la creación de la dirección del socket local");
+      return 1;
+    }
+    memset((char*) &external_address, 0, sizeof(external_address));
+    external_address = make_ip_address(ADDR, EPORT);
+    if (external_address.sin_addr.s_addr == 0) {
+      printf("Error en la creación de la dirección del socket externo");
       return 1;
     }
 
@@ -44,7 +51,7 @@ int protected_main (int argc, char *argv[]){
     while(1 && message.text.at(0) == '.') {
       std::cout << "Lectura del fichero en el servidor: \n";
 
-      local_socket.receive_from(message, local_address);
+      local_socket.receive_from(message, external_address);
       std::cout << "Datos recibidos: \n\n\n";
       std::cout << message.text.data();
       std::cout << "\n\n\n";
