@@ -19,7 +19,7 @@
 
 sockaddr_in make_ip_address(const std::string& ip_address, int port);
 
-void read_send(int fileFD, Socket<Message> &local_socket, sockaddr_in &ext_addr);
+void read_send(std::exception_ptr& eptr, int fileFD, Socket<Message> &local_socket, sockaddr_in &ext_addr);
 
 int protected_main (int argc, char *argv[])
 {  
@@ -60,14 +60,19 @@ int protected_main (int argc, char *argv[])
   // socket:
     Socket<Message> local_socket(local_address);
     
-    //read_send(fileFd, local_socket, external_address);
-    std::thread sendingThread(&read_send, fileFd, std::ref(local_socket), std::ref(external_address));
+  // leer y enviar el archivo
+    std::exception_ptr eptr{};
+    std::thread sendingThread(&read_send, std::ref(eptr),fileFd, std::ref(local_socket), std::ref(external_address));
     if ( int is_closed = close(fileFd) < 0) {
       throw std::system_error(errno, std::system_category(),
                             "no se pudo cerrar el fichero.");
   
     }
-    sendingThread.join(); 
+    
+    sendingThread.join();
+    if (eptr) {
+        std::rethrow_exception(eptr);
+    } 
   } else {
     std::cout << "falta el nombre del fichero a enviar " << std::endl;
   
@@ -130,18 +135,24 @@ sockaddr_in make_ip_address(const std::string& ip_address, int port)
 }
 
 
-void read_send(int fileFD, Socket<Message> &local_socket, sockaddr_in &ext_addr) {
+void read_send(std::exception_ptr& eptr, int fileFD, Socket<Message> &local_socket, sockaddr_in &ext_addr) {
     int ret;
     struct Message message ;
+
+    try {
     
-    std::cout << "Sending file ... \n";
-      
-      
-    while((ret = read(fileFD, message.text.data(), message.text.size()-1)) > 0 ) {
-      
-      message.text.data()[ret] = 0x00;
-     
-      local_socket.send_to(message, ext_addr);
-      
+        std::cout << "Sending file ... \n";
+
+
+        while((ret = read(fileFD, message.text.data(), message.text.size()-1)) > 0 ) {
+        
+          message.text.data()[ret] = 0x00;
+
+          local_socket.send_to(message, ext_addr);
+
+        }
+
+    } catch(...) {
+        eptr = std::current_exception();
     }
 }
