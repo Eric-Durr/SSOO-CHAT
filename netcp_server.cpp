@@ -44,13 +44,9 @@ int protected_main (int argc, char *argv[]){
                             "no se pudo crear la dirección externa.");
     }
   // socket:
-    Socket<Message> local_socket(local_address);
-    
   // try-catch loop
     std::exception_ptr eptr{};
-    std::thread receiveThread(&receive_msg, std::ref(eptr), std::ref(local_socket), std::ref(external_address));
 
-    receiveThread.join();
     return 0;
 }
 
